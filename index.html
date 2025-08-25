@@ -1,33 +1,344 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>مشاهدة القناة</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<style>
-body { margin:0; background:black; }
-video { width:100%; height:100vh; background:black; }
-</style>
+  <meta charset="UTF-8">
+  <title>قنواتي</title>
+  <style>
+    body { background:#111; color:#fff; font-family:Arial, sans-serif; text-align:center; }
+    h2 { margin:20px 0; color:#0f0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:15px; padding:20px; }
+    .card { background:#222; border-radius:12px; padding:10px; cursor:pointer; transition:.3s; }
+    .card:hover { background:#333; transform:scale(1.05); }
+    .logo { width:80px; height:80px; object-fit:contain; margin-bottom:10px; }
+    .name { font-size:14px; font-weight:bold; }
+  </style>
 </head>
 <body>
-<video id="video" controls autoplay></video>
-<script>
-function getChannelURL() {
-  const params = new URLSearchParams(window.location.search);
-  // إذا ما عطيتش رابط في ?src= يستعمل هذا الرابط الافتراضي
-  return params.get('src') || 'https://media1.livaat.com/static/AL-RASHEED-HD/chunklist.m3u8';
-}
 
-var streamURL = getChannelURL();
-var video = document.getElementById('video');
+  <!-- 🏏 باقة الرياضة -->
+  <h2>باقـة القنـوات العالميـة 🌍</h2>
+  <div id="grid-sports" class="grid"></div>
+  
+  <script>
+    // 🏏 NOTE: هنا زيد قنوات الرياضة (كل قناة بين {} مفصولة بفاصلة)
+    const sports = [ 
+  { name: "LCP-AN", img: "https://i.ibb.co/rkv3Nvq/lcpan.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/refs/heads/master/ressources/dmotion/py/lcpan/lcp1.m3u8" },
+  { name: "BFM 2", img: "https://i.ibb.co/2MhqYgg/bfm2.png", link: "https://live-cdn-bfm2-euw1.bfmtv.bct.nextradiotv.com/m5/media.m3u8?bpkio_serviceid=7de32147a4f1055b8812bbac92a24d2e" },
+  { name: "CGTN FRANÇAIS", img: "https://i.ibb.co/ZgqnqnJ/cgtnfr.png", link: "https://francais-livews.cgtn.com/hls/LSvev95OuFZtKLc6CeKEFYXj220802LSTeV6PO0Ut9r71Uq3k5goCA220802cd/playlist.m3u8" },
+  { name: "MONACO INFO", img: "https://i.ibb.co/MZLCTmN/monacoinfo.png", link: "https://webtv.monacoinfo.com/live/prod/index.m3u8" },
+  { name: "AFRICA 24 FR", img: "https://i.ibb.co/pdnMrZn/a24.png", link: "https://africa24.vedge.infomaniak.com/livecast/ik:africa24/manifest.m3u8" },
+  { name: "RT FRANÇAIS [censure-blocked]", img: "https://i.ibb.co/D7w9h7Q/rt.png", link: "http://69.64.57.208:8080/rtfrance/playlist.m3u8" },
+  { name: "BFM BUSINESS (backup)", img: "https://i.ibb.co/HDB0sdh/bfmbusiness.png", link: "https://live-cdn-stream-euw1.bfmb.bct.nextradiotv.com/m1/media.m3u8?bpkio_serviceid=7de32147a4f1055b7de133c00ff64f92" },
+  { name: "TV5MONDE INFO (backup)", img: "https://i.ibb.co/drk4BWw/tv5inf.png", link: "https://d161b1o6wfc5a3.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-3u7sgewc3l8ri/tvfm.m3u8" },
+  { name: "LE MÉDIA TV (backup)", img: "https://i.ibb.co/ZBqk6mK/lemedia.jpg", link: "https://raw.githubusercontent.com/BG47510/tube/refs/heads/main/lemedia.m3u8" },
+  { name: "CGTN FRANÇAIS (backup)", img: "https://i.ibb.co/ZgqnqnJ/cgtnfr.png", link: "https://amg01314-cgtn-amg01314c2-rakuten-us-1319.playouts.now.amagi.tv/cgtn-fr-rakuten/playlist.m3u8" },
+  { name: "RMC DÉCOUVERTE", img: "https://i.ibb.co/VS4xR2g/rmcdecou.png", link: "https://d16zzycxcd0m0r.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-hixvx5kymecr9/RMC_Decouverte_FR.m3u8" },
+  { name: "C8 [OUT]", img: "https://i.ibb.co/cQbcrGZ/c8.png", link: "https://tvradiozap.eu/tools/dm-m3u8.php/x5gv5rr.m3u8" },
+  { name: "TF1 (backup)", img: "https://i.ibb.co/BBpR1Wx/tf1.png", link: "https://raw.githubusercontent.com/mikekaprielian/rtnaodhor93n398/main/fr/videotf1.m3u8" },
+  { name: "FRANCE 2 (backup)", img: "https://i.ibb.co/GxWtcTm/fr2bl.png", link: "https://raw.githubusercontent.com/mikekaprielian/rtnaodhor93n398/refs/heads/main/fr/videof2.m3u8" },
+  { name: "INA 70s", img: "https://i.ibb.co/svWdczbW/ina.png", link: "https://fast-rakuten.okast.tv/channels/34d82f76-b51f-4bf5-9b35-769fb5904e79/96f96405-90e7-489a-a1e6-8ede5d2b4933/media_.m3u8?bpkio_serviceid=fa2e8c4385712f9af3e719ec904b3543" },
+  { name: "TRACE URBAN", img: "https://i.ibb.co/2hgmDs6/traceurb.png", link: "https://lightning-traceurban-samsungau.amagi.tv/playlist.m3u8" },
+  { name: "L'ÉQUIPE TV", img: "https://i.ibb.co/KXhYwm0/lequipe.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/master/ressources/dmotion/py/eqpe/ekip.m3u8" },
+  { name: "L'ÉQUIPE TV", img: "https://i.ibb.co/KXhYwm0/lequipe.png", link: "https://dshn8inoshngm.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-gac2i63dmu8b7/LEquipe_FR.m3u8" },
+  { name: "TECH&CO", img: "https://i.ibb.co/443jKxq/techco.png", link: "https://live-cdn-technco-euw1.bfmb.bct.nextradiotv.com/m1/media.m3u8?bpkio_serviceid=7de32147a4f1055bd2f1574d94862544" },
+  { name: "MEN'S UP TV", img: "https://i.ibb.co/tcYgz6h/mensup.png", link: "https://tvradiozap.eu/tools/dm-m3u8.php/x2kr3hs.m3u8" },
+  { name: "TOP SANTÉ", img: "https://i.ibb.co/TLPBT2L/topsante.png", link: "https://tvradiozap.eu/tools/dm-m3u8.php/720/x89yjnn.m3u8" },
+  { name: "TV5MONDE VOYAGE", img: "https://i.ibb.co/vxqS6F0/tv5voyage.png", link: "https://d1qvkge2x4ev90.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-8q6p9i1t9dw2k/tvfvo.m3u8" },
+  { name: "WILD SIDE TV", img: "https://i.ibb.co/VvMKr5V/wildside.jpg", link: "https://versatile-wildsidetv-1-fr.samsung.wurl.tv/playlist.m3u8" },
+  { name: "TELE NOVELA TV", img: "https://i.ibb.co/grBSqt4/novela.png", link: "https://stormcast-telenovelatv-1-fr.samsung.wurl.tv/playlist.m3u8" },
+  { name: "WILD SIDE TV", img: "https://i.ibb.co/VvMKr5V/wildside.jpg", link: "https://versatile-wildsidetv-1-fr.samsung.wurl.tv/playlist.m3u8" },
+  { name: "FASHION TV", img: "https://i.ibb.co/LYbF1Wt/fashionok.png", link: "https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=5457" },
+  { name: "TVR RENNES", img: "https://i.ibb.co/3k4Lv34/tvrennes.png", link: "https://cdn.live.easybroadcast.io/abr_corp/54_tvr_vtucuxt/playlist.m3u8" },
+  { name: "TÉLÉ NANTES", img: "https://i.ibb.co/3y88kpg/telenantes.jpg", link: "https://github.com/Sibprod/streams/raw/main/ressources/dm/py/hls/telenantes.m3u8" },
+  { name: "TV VENDÉE", img: "https://i.ibb.co/xS8B1qS/tvvendee.png", link: "https://streamer01.myvideoplace.tv/streamer02/hls/VDE_EVEN_PAD_130923.m3u8" },
+  { name: "ALPE D'HUEZ TV", img: "https://i.ibb.co/zRLKgFS/alpehuez.png", link: "https://edge14.vedge.infomaniak.com/livecast/ik:adhtv/manifest.m3u8" },
+  { name: "CANAL 32", img: "https://i.ibb.co/Dpsn6ZV/c32.png", link: "https://edge17.vedge.infomaniak.com/livecast/ik:canal32_4/manifest.m3u8" },
+  { name: "CANAL 32", img: "https://i.ibb.co/Dpsn6ZV/c32.png", link: "https://video.vedge.infomaniak.com/livecast/canal32_4/manifest.m3u8" },
+  { name: "IL TV", img: "https://i.ibb.co/YLL42C6/iltv.png", link: "https://live.creacast.com/iltv/smil:iltv.smil/playlist.m3u8" },
+  { name: "TV7 COLMAR", img: "https://i.ibb.co/d6x3fxq/tv7colm.png", link: "https://tv7.live-kd.com/live/tv7/livestream/playlist.m3u8" },
+  { name: "TV 3V", img: "https://i.ibb.co/2nG96GF/tv3v.png", link: "https://tv3v.live-kd.com/live/tv3v/livestream/playlist.m3u8" },
+ { name: "VIA MATÉLÉ", img: "https://i.ibb.co/4ZfHZhf/viamatele.png", link: "https://5dd226f8f01e8.streamlock.net/via-matele-live/matelelive_1080/playlist.m3u8" },
+  { name: "VIA TELEPAESE", img: "https://i.ibb.co/nQP8st8/telepaese.png", link: "https://srv.webtvmanager.fr:3970/live/viatelepaeselive.m3u8" },
+  { name: "VOSGES TV", img: "https://i.ibb.co/qkkHNPR/vosges.png", link: "https://vosgestv.live-kd.com/live/vosgestv/vosgestv/playlist.m3u8" },
+  { name: "LITTORAL TV", img: "https://i.ibb.co/tLPxcFn/littoral.png", link: "https://live.creacast.com/littoralfm-ch1/stream/playlist.m3u8" },
+  { name: "TV8 MONTBLANC", img: "https://i.ibb.co/74fJt5v/8mblanc.png", link: "https://tvradiozap.eu/tools/dm-m3u8.php/x3wqv8b.m3u8" },
+  { name: "ANGERS TÉLÉ", img: "https://i.ibb.co/QM2Y7TV/angtl.jpg", link: "https://github.com/Sibprod/streams/raw/main/ressources/dm/py/hls/angerstele.m3u8" },
+  { name: "LYON CAPITALE TV", img: "https://i.ibb.co/3NX9rPp/lyoncap.png", link: "https://github.com/Sibprod/streams/raw/main/ressources/dm/py/hls/lyoncapitale.m3u8" },
+  { name: "BRIONNAIS TV", img: "https://i.ibb.co/S0X9VM8/brion.jpg", link: "https://stream2.mandarine.media/brionnaistv/brionnaistv/playlist.m3u8" },
+  { name: "ASTV", img: "https://i.ibb.co/2qs2HxR/astv.png", link: "https://raw.githubusercontent.com/SebTV-prod/streams/refs/heads/main/ressources/twitch/hls/ASTV.m3u8" },
+  { name: "MADRAS FM TV", img: "https://i.ibb.co/BwD72ps/madras.png", link: "https://edge17.vedge.infomaniak.com/livecast/ik:madrasfmtv/manifest.m3u8" },
+  { name: "TNTV", img: "https://i.ibb.co/kcPbyTD/tntv.png", link: "https://tntv-samsung-fr.amagi.tv/playlist.m3u8" },
+  { name: "TV MONACO", img: "https://i.ibb.co/XjzvmqL/tvmonaco.jpg", link: "https://production-fast-mcrtv.content.okast.tv/channels/2116dc08-1959-465d-857f-3619daefb66b/b702b2b9-aebd-436c-be69-2118f56f3d86/master.m3u8" },
+  { name: "TÉLÉ BRUXELLES", img: "https://i.ibb.co/4dTPMzK/tlbrux.png", link: "https://59959724487e3.streamlock.net/stream/live/playlist.m3u8" },
+  { name: "CARAC 1", img: "https://i.ibb.co/Y8QFgbN/carac.png", link: "https://rougetv.vedge.infomaniak.com/livecast/rougetv/master.m3u8" },
+  { name: "CARAC 1", img: "https://i.ibb.co/Y8QFgbN/carac.png", link: "http://event.vedge.infomaniak.com/livecast/event/manifest.m3u8" },
+  { name: "CARAC 2", img: "https://i.ibb.co/Y8QFgbN/carac.png", link: "https://onefmhd.vedge.infomaniak.com/livecast/onefmhd/master.m3u8" },
+  { name: "CARAC 3", img: "https://i.ibb.co/Y8QFgbN/carac.png", link: "https://lfmhd.vedge.infomaniak.com/livecast/lfmhd/master.m3u8" },
+  { name: "TVM 3", img: "https://i.ibb.co/gz2wbkL/tvm3.png", link: "https://edge11.vedge.infomaniak.com/livecast/ik:tvm3/manifest.m3u8" },
+  { name: "CANAL 9", img: "https://i.ibb.co/1XYdy6j/canal9.png", link: "https://edge12.vedge.infomaniak.com/livecast/ik:livehd/manifest.m3u8" },
+  { name: "CANAL ALPHA", img: "https://i.ibb.co/st6cDg1/calpha.png", link: "https://canalalphaju.vedge.infomaniak.com/livecast/canalalphaju/playlist.m3u8" },
+  { name: "SAVOIR.MÉDIA", img: "https://i.ibb.co/LzWqD0s/savoirmedia.png", link: "https://hls.savoir.media/live/stream.m3u8" },
+  { name: "TRT HABER", img: "https://i.ibb.co/Bt6frts/trthaber.png", link: "https://tv-trthaber.medya.trt.com.tr/master.m3u8" },
+  { name: "HABER GLOBAL", img: "https://i.ibb.co/k58p7P2/hglobal.png", link: "https://ensonhaber-live.ercdn.net/haberglobal/haberglobal.m3u8" },
+  { name: "TELE 1", img: "https://i.ibb.co/4Mhmggc/tele1.png", link: "https://tele1-live.ercdn.net/tele1/tele1.m3u8" },
+  { name: "TV 5", img: "https://i.ibb.co/6m9Pb3t/tv5tr1.png", link: "https://ip252.ozelip.com:1936/protv5/protv5/playlist.m3u8" },
+  { name: "NTV", img: "https://i.ibb.co/9c7MvWX/ntv.png", link: "http://dygvideo.dygdigital.com/live/hls/ntv4puhu?m3u8" },
+  { name: "GZT", img: "https://i.ibb.co/9s9YKYT/gzt.png", link: "https://mn-nl.mncdn.com/gzttv/gzttv/playlist.m3u8" },
+  { name: "TV NET", img: "https://i.ibb.co/1RWhvy4/tvnet.png", link: "https://mn-nl.mncdn.com/tvnet/tvnet/playlist.m3u8" },
+  { name: "ÜLKE", img: "https://i.ibb.co/ZXts607/ulketv.png", link: "https://livetv.radyotvonline.net/kanal7live/ulketv/playlist.m3u8" },
+  { name: "AKIT TV", img: "https://i.ibb.co/B4XX5Vx/akittv.png", link: "http://akittv-live.ercdn.net/akittv/akittv.m3u8" },
+  { name: "LİDER HABER TV", img: "https://i.ibb.co/mHt7rQf/Tryerel.png", link: "http://nrttn172.kesintisizyayin.com:29010/lidertv/lidertv/sec-f5-v1-a1.m3u8" },
+  { name: "TÜRK HABER", img: "https://i.ibb.co/j9Pmc2qN/thhaber.jpg", link: "https://edge1.socialsmart.tv/turkhaber/bant1/playlist.m3u8" },
+  { name: "FİNANS TÜRK", img: "https://i.ibb.co/GQdBjZfW/finansturk.png", link: "https://yayin30.haber100.com/live/finansturk/playlist.m3u8" },
+  { name: "CNBC-E", img: "https://i.ibb.co/kcpSwmK/cnbce.png", link: "https://uzunmuhalefet.serv00.net/canlitv2.php?id=13406&.m3u8" },
+  { name: "DHA (feed 2)", img: "https://i.ibb.co/K6BKFqY/dha.png", link: "https://603c568fccdf5.streamlock.net/live2/dhaweb2/playlist.m3u8" },
+  { name: "TRT HABER (backup)", img: "https://i.ibb.co/Bt6frts/trthaber.png", link: "https://tv.ensonhaber.com/trthaber/trthaber.m3u8" },
+  { name: "SÖZCÜ TV (backup)", img: "https://i.ibb.co/B40rjP3/szc1.png", link: "https://helga.iptv2022.com/szc_tv/index.m3u8" },
+  { name: "HABER TÜRK (backup)", img: "https://i.ibb.co/wdwm0fn/haberturk.png", link: "https://tv.ensonhaber.com/haberturk/haberturk.m3u8" },
+  { name: "HABER TÜRK (backup)", img: "https://i.ibb.co/wdwm0fn/haberturk.png", link: "https://ensonhaber-live.ercdn.net/haberturk/haberturk.m3u8" },
+  { name: "TV 100 (backup)", img: "https://i.ibb.co/bLpTdYZ/tv100.png", link: "https://ensonhaber-live.ercdn.net/tv100/tv100.m3u8" },
+  { name: "TV 100 (backup)", img: "https://i.ibb.co/bLpTdYZ/tv100.png", link: "https://tv.ensonhaber.com/tv100/tv100.m3u8" },
+  { name: "BENGÜ TÜRK (backup)", img: "https://i.ibb.co/0MHPk8y/benguturk.png", link: "https://ensonhaber-live.ercdn.net/benguturk/benguturk.m3u8" },
+  { name: "24 (backup)", img: "https://i.ibb.co/PhwYjQ7/24tv.png", link: "https://tv.ensonhaber.com/tv24/tv24.m3u8" },
+  { name: "24 (backup)", img: "https://i.ibb.co/PhwYjQ7/24tv.png", link: "https://ensonhaber-live.ercdn.net/tv24/tv24.m3u8" },
+  { name: "BLOOMBERG HT (backup)", img: "https://i.ibb.co/HXKrJRC/blght22.png", link: "https://ciner-live.daioncdn.net/bloomberght/bloomberght.m3u8" },
+  { name: "BLOOMBERG HT (backup)", img: "https://i.ibb.co/HXKrJRC/blght22.png", link: "https://ensonhaber-live.ercdn.net/bloomberght/bloomberght.m3u8" },
+  { name: "BLOOMBERG HT (backup)", img: "https://i.ibb.co/HXKrJRC/blght22.png", link: "https://tv.ensonhaber.com/bloomberght/bloomberght.m3u8" },
+  { name: "TGRT HABER (backup)", img: "https://i.ibb.co/vJJzR8G/tgrthab22.png", link: "https://canli.tgrthaber.com/tgrt.m3u8" },
+  { name: "KANAL D", img: "https://i.ibb.co/s9mVqWH/kanald.png", link: "https://demiroren-live.daioncdn.net/kanald/kanald.m3u8" },
+  { name: "STAR", img: "https://i.ibb.co/DYyDzGV/star22tv.png", link: "http://dygvideo.dygdigital.com/live/hls/startv4puhu?m3u8" },
+  { name: "STAR", img: "https://i.ibb.co/DYyDzGV/star22tv.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/refs/heads/master/ressources/tur/star.m3u8" },
+  { name: "ATV", img: "https://i.ibb.co/n1SCYqN/atv.png", link: "https://izle.canlitvapp.com/aytv/index.m3u8" },
+  { name: "TRT 1 (backup)", img: "https://i.ibb.co/d6c87Km/trt122.png", link: "http://89.187.191.41/TRT-1-HD-TR/playlist.m3u8" },
+  { name: "STAR (backup)", img: "https://i.ibb.co/DYyDzGV/star22tv.png", link: "http://trn03.tulix.tv/gt-star-tv/tracks-v1a1/mono.m3u8" },
+  { name: "ATV (backup)", img: "https://i.ibb.co/n1SCYqN/atv.png", link: "http://95.174.71.114:80/TR-ATV/index.m3u8" },
+  { name: "ATV (backup)", img: "https://i.ibb.co/n1SCYqN/atv.png", link: "http://89.187.191.41/ATV-HD-TR/video.m3u8" },
+  { name: "ATV (backup)", img: "https://i.ibb.co/n1SCYqN/atv.png", link: "http://116.202.238.88/ATV_TR/tracks-v1a1/index.m3u8" },
+  { name: "ATV (backup)", img: "https://i.ibb.co/n1SCYqN/atv.png", link: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/atv/atv_720p.m3u8" },
+  { name: "TİVİ 6", img: "https://i.ibb.co/sRNHKjS/tivi622.png", link: "https://live.artidijitalmedya.com/artidijital_tivi6/tivi6/playlist.m3u8" },
+  { name: "Bİ 1! KANAL", img: "https://i.ibb.co/Jj3HD3KX/bikanal.png", link: "https://live.artidijitalmedya.com/artidijital_bikanal/bikanal/chunks.m3u8" },
+  { name: "DMAX", img: "https://i.ibb.co/QQQR6VK/dmax.png", link: "https://dogus-live.daioncdn.net/dmax/dmax.m3u8" },
+  { name: "TLC TR", img: "https://i.ibb.co/Z1vHy41/tlc.png", link: "https://dogus-live.daioncdn.net/tlc/tlc.m3u8" },
+  { name: "360", img: "https://i.ibb.co/FVnG3Zr/360tv.png", link: "https://turkmedya-live.ercdn.net/tv360/tv360.m3u8" },
+  { name: "360", img: "https://i.ibb.co/FVnG3Zr/360tv.png", link: "https://tv.ensonhaber.com/tv360/tv360.m3u8" },
+  { name: "TYT TÜRK", img: "https://i.ibb.co/N2n2tqMz/tyt.png", link: "https://cdn-tytturk.yayin.com.tr/tytturk/index.m3u8" },
+  { name: "TÜRKİYE KLİNİKLERİ TV", img: "https://i.ibb.co/VWRBg1M/trklinik.png", link: "http://mn-nl.mncdn.com/turkiyeklinikleri/smil:turkiyeklinikleri/chunklist_b3128000.m3u8" },
+  { name: "CGTN BELGESEL", img: "https://i.ibb.co/s9gLmqv/cgtnch.png", link: "https://mn-nl.mncdn.com/dogusdyg_drone/cgtn/playlist.m3u8" },
+  { name: "SAĞLIK CHANNEL", img: "https://i.ibb.co/TTwc1rR/saglikch.png", link: "https://live.euromediacenter.com/saglikchannel/index.m3u8" },
+  { name: "MOR TV", img: "https://i.ibb.co/qRsfyb2/tvmor.png", link: "https://live.euromediacenter.com/tvmor/index.m3u8" },
+  { name: "ONS TV", img: "https://i.ibb.co/PZW37ch0/onstv.jpg", link: "https://cdn-onstv.yayin.com.tr/onstv/tracks-v1a1/mono.m3u8" },
+  { name: "ONS TV", img: "https://i.ibb.co/PZW37ch0/onstv.jpg", link: "https://live.artidijitalmedya.com/artidijital_onstv/onstv/artidijital_onstv/playlist.m3u8" },
+  { name: "TRT ÇOCUK", img: "https://i.ibb.co/YjkMYbF/trtcocuk21a.png", link: "https://tv-trtcocuk.medya.trt.com.tr/master.m3u8" },
+  { name: "TRT DİYANET ÇOCUK", img: "https://i.ibb.co/qDF8pHQ/tdcc.png", link: "https://tv-trtdiyanetcocuk.medya.trt.com.tr/master.m3u8" },
+  { name: "A SPOR", img: "https://i.ibb.co/xSjB51j/aspor.png", link: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/aspor/aspor_480p.m3u8" },
+  { name: "TRT SPOR", img: "https://i.ibb.co/3WmLjwG/trtspor22c.png", link: "http://162.212.179.33:80/dvrfl05/gin-trtspor/playlist.m3u8" },
+  { name: "TJK TV [geo-blocked]", img: "https://i.ibb.co/0Yt6jbg/tjk.png", link: "http://tjktv.ercdn.net/tjktv.m3u8" },
+  { name: "TJK TV [geo-blocked]", img: "https://i.ibb.co/0Yt6jbg/tjk.png", link: "http://tjktv-live.tjk.org/tjktv.m3u8" },
+  { name: "TRT EBA TV", img: "https://i.ibb.co/8g20RBH/ebatek.png", link: "https://tv-e-okul01.medya.trt.com.tr/master.m3u8" },
+  { name: "A SPOR (backup)", img: "https://i.ibb.co/xSjB51j/aspor.png", link: "https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/aspor/aspor_720p.m3u8" },
+{ name: "ANT 1", img: "https://i.ibb.co/qk1SMGf/ant1.jpg", link: "https://lcdn.antennaplus.gr/r86d08d448885424196f6cd3ddc5d1489/eu-central-1/6415884360001/playlist_dvr.m3u8" },
+  { name: "ANT 1", img: "https://i.ibb.co/qk1SMGf/ant1.jpg", link: "https://cdn5.smart-tv-data.com/ant1/ant1live/mpeg.2ts" },
+  { name: "STAR", img: "https://i.ibb.co/PmDyTX6/star.jpg", link: "https://livestar.siliconweb.com/starvod/star_int/star_int.m3u8" },
+  { name: "STAR", img: "https://i.ibb.co/PmDyTX6/star.jpg", link: "https://livestar.siliconweb.com/media/star1/star1.m3u8" },
+  { name: "STAR", img: "https://i.ibb.co/PmDyTX6/star.jpg", link: "https://livestar.siliconweb.com/media/star4/star4.m3u8" },
+  { name: "STAR", img: "https://i.ibb.co/PmDyTX6/star.jpg", link: "http://telmaco-cdn.akamaized.net/starcgr/default/index.m3u8" },
+  { name: "MEGA", img: "https://i.ibb.co/y6D9CPT/megagr.png", link: "http://c98db5952cb54b358365984178fb898a.msvdn.net/live/S14373792/aGr5KG7RcZ9a/playlist.m3u8" },
+  { name: "MEGA PLAY", img: "https://i.ibb.co/y6D9CPT/megagr.png", link: "https://c422e6f66e3a41029fa6cf83cab8b1d5.msvdn.net/live/S46747281/DJSPnDk0TaKs/playlist.m3u8" },
+  { name: "MAK TV", img: "https://i.ibb.co/B2Xxhty/mak.png", link: "https://lcdn.antennaplus.gr/r444865966c0847fca53b9b0c133af7a9/eu-central-1/6415884360001/playlist_dvr.m3u8" },
+  { name: "NETMAX TV", img: "https://i.ibb.co/B6hwDfS/netmax.jpg", link: "https://live.netmaxtv.com:1936/live/live/playlist.m3u8" },
+  { name: "OPEN TV", img: "https://i.ibb.co/8bgKVyb/openbyd.png", link: "https://liveopen.siliconweb.com/openTvLive/liveopen/playlist.m3u8" },
+  { name: "ATTICA", img: "https://i.ibb.co/xq8t3P5/attica.jpg", link: "http://atticatv.siliconweb.com/atticatv/atticaliveabr/playlist.m3u8" },
+  { name: "NET TV TORONTO", img: "https://i.ibb.co/tQmhZ0K/netmax.png", link: "https://eu1.vectromdigital.com:1936/netvtoronto/netvtoronto/playlist.m3u8" },
+  { name: "MAD WORLD", img: "https://i.ibb.co/W5DZtvt/madtv.png", link: "https://ellastvmax.gotdns.com/freetv/madworldtv/index.m3u8" },
+  { name: "OMEGA", img: "https://i.ibb.co/TPGzY4C/omega.png", link: "https://l1.cloudskep.com/omegatv/omcy/playlist.m3u8" },
+  { name: "GROOVY TV", img: "https://i.ibb.co/1qXMwq2/groovy.png", link: "http://web.onair-radio.eu:1935/groovytv/groovytv/playlist.m3u8" },
+  { name: "NEA CRETE TV", img: "https://i.ibb.co/0DDXv93/nea.png", link: "https://live.neatv.gr:8888/hls/neatv_high/index.m3u8" },
+  { name: "BARAZA RELAXING TV", img: "https://i.ibb.co/b2mBMBk/baraza.jpg", link: "https://rtmp.streams.ovh:1936/barazarelax/barazarelax/playlist.m3u8" },
+  { name: "NRG TV", img: "https://i.ibb.co/z6zPQL8/nrg.png", link: "http://tv.nrg91.gr:1935/onweb/live/master.m3u8" },
+  { name: "BOYAH TV - KANALI VOULIS", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "http://streamer-cache.grnet.gr/parliament/hls/webtv.m3u8" },
+  { name: "BOYAH TV - KANALI VOULIS", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "https://streamer-cache.grnet.gr/parliament/parltv.sdp/master.m3u8" },
+  { name: "AEOLOS", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "https://cdn.istoikona.com/aeolostv/live/playlist.m3u8" },
+  { name: "EXPLORE", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "http://web.onair-radio.eu:1935/explorecy/explorecy/playlist.m3u8" },
+  { name: "ράκη Νετ TV", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "https://cdn.onestreaming.com/thrakinettv/thrakinettv/playlist.m3u8" },
+  { name: "START TV", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "https://live.cast-control.eu/StartMedia/StartMedia/playlist.m3u8" },
+  { name: "START TV", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "https://video.streams.ovh:1936/pellatv/pellatv/master.m3u8" },
+  { name: "KONTRA TV", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "http://kontralive.siliconweb.com/live/kontratv/playlist.m3u8" },
+  { name: "HIGH TV", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "http://live.streams.ovh:1935/hightv/hightv/playlist.m3u8" },
+  { name: "HELLENIC TV", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "https://l5.cloudskep.com/hellenictv/htv/playlist.m3u8" },
+  { name: "CRETA", img: "https://i.ibb.co/L9fj1Hj/greece.png", link: "http://live.streams.ovh:1935/tvcreta/tvcreta/playlist.m3u8" },
+  { name: "ALPHA TV CYPRUS", img: "https://i.ibb.co/480p4sv/alpha.png", link: "https://l4.cloudskep.com/alphacyp/acy/playlist.m3u8" },
+  { name: "RIK SAT CYPRUS", img: "https://i.ibb.co/3sHp7pS/riksat.png", link: "http://l3.cloudskep.com/cybcsat/abr/playlist.m3u8" },
+  { name: "ERT WORLD (backup)", img: "https://i.ibb.co/vQZKgNX/ertworld.png", link: "http://hbbtvapp.ert.gr/stream.php/v/vid_ertworld_mpeg.2ts" },
+  { name: "ERT WORLD (backup)", img: "https://i.ibb.co/vQZKgNX/ertworld.png", link: "http://hbbtv.ert.gr/stream.php/v/vid_ertworld_mpeg.2ts" },
+  { name: "TVI", img: "https://i.ibb.co/pyXp0bk/tvi.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/master/ressources/tvipt/sh/tvi.m3u8" },
+  { name: "SIC", img: "https://i.ibb.co/6r1xHn6/sic.png", link: "https://d1zx6l1dn8vaj5.cloudfront.net/out/v1/b89cc37caa6d418eb423cf092a2ef970/index.m3u8" },
+  { name: "SIC NOTÍCIAS", img: "https://i.ibb.co/1QHfvZJ/sicnoc.png", link: "https://cdnapisec.kaltura.com/p/4526593/sp/4526593/playManifest/entryId/1_j8ztwihx/deliveryProfileId/672/protocol/https/format/applehttp/a.m3u8" },
+  { name: "TVI V+", img: "https://i.ibb.co/gDFmb2z/vplustvi.png", link: "https://video-auth2.iol.pt/live_vmais/live_vmais/edge_servers/vmais-720p/playlist.m3u8" },
+  { name: "TVI FICCAO", img: "https://i.ibb.co/hg8wkqj/tvific.jpg", link: "https://video-auth1.iol.pt/live_tvi_ficcao/live_tvi_ficcao/edge_servers/tvificcao-720p/playlist.m3u8" },
+  { name: "TVI REALITY", img: "https://i.ibb.co/xYNTr2v/tvirea.jpg", link: "https://video-auth4.iol.pt/live_tvi_reality/live_tvi_reality/edge_servers/tvireality-720_passthrough/playlist.m3u8" },
+  { name: "SIC REPLAY", img: "https://i.ibb.co/W2dzvHS/sicreplay.png", link: "https://production-fast-sic.content.okast.tv/fa2e8c4385712f9a7dce4ff2dcebac2e/channels/d9070446-8448-455e-8075-773b1ba12562/d47eae0f-ad77-414a-9a1d-2a6628ba18c3/media_.m3u8" },
+  { name: "SIC HD ALTA DEFINIÇÃO", img: "https://i.ibb.co/M2g53rQ/sichdad.png", link: "https://production-fast-sic.content.okast.tv/fa2e8c4385712f9aa54bbe52b1bd9b6b/channels/d9070446-8448-455e-8075-773b1ba12562/fc831b20-f252-4e7d-8cc5-2d05f4d43c1c/media_.m3u8" },
+  { name: "PORTO CANAL", img: "https://i.ibb.co/WVzhVbc/portoc.png", link: "https://pull-live-156-1.global.ssl.fastly.net/pc5865dc25400thmb-ea6bf03b14fa318f7133/smil:pc1-jhrgyuoqe5865db-68tkgb14fa318f7133f03.smil/playlist.m3u8" },
+  { name: "TVI AFRICA", img: "https://i.ibb.co/vvRXDTV/tviafrica.jpg", link: "https://video-auth4.iol.pt/live_tvi_africa/live_tvi_africa/edge_servers/tviafrica-480p/playlist.m3u8" },
+  { name: "AR PARLAMENTO", img: "https://i.ibb.co/zZwMM3d/arparl.png", link: "https://playout175.livextend.cloud/livenlin4/_definst_/2liveartvpub2/playlist.m3u8" },
+  { name: "FAMA FM TV", img: "https://i.ibb.co/RpQj4Dd/fama.png", link: "https://tv2.fastcast4u.com:3310/live/famatvlive.m3u8" },
+  { name: "SIC NOTÍCIAS (backup)", img: "https://i.ibb.co/1QHfvZJ/sicnoc.png", link: "https://d277k9d1h9dro4.cloudfront.net/out/v1/293e7c3464824cbd8818ab8e49dc5fe9/index.m3u8" },
+  { name: "TVE LA 2", img: "https://i.ibb.co/ssGmhbH/la2.jpg", link: "https://d4g9wh8d4wiaw.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-crbrakk0yedqb/La2ES.m3u8" },
+  { name: "TVE 24 H", img: "https://i.ibb.co/fqg1vfr/24h.png", link: "https://rtvelivestream.rtve.es/rtvesec/24h/24h_main_dvr.m3u8" },
+  { name: "TVE 24 H", img: "https://i.ibb.co/fqg1vfr/24h.png", link: "https://d32rw80ytx9uxs.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-vlldndmow4yre/24HES.m3u8" },
+  { name: "TVE TDP", img: "https://i.ibb.co/D1Djbfj/tdp.jpg", link: "https://d1cctoeg0n48w5.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-mnixw9wn5ugmv/TeledeporteES.m3u8" },
+  { name: "TVE CLAN", img: "https://i.ibb.co/BGy5vM5/clan.jpg", link: "https://dum8zv1rbdjj2.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-x6uutpgph4tpt/ClanES.m3u8" },
+  { name: "ATRES INT", img: "https://i.ibb.co/hYTkm8L/A3es.png", link: "http://38.180.133.31:8000/play/a0ki/index.m3u8" },
+  { name: "RNE PARA TODOS", img: "https://i.ibb.co/SRbKtLk/rtve.png", link: "https://ztnr.rtve.es/ztnr/6688753.m3u8" },
+  { name: "EL PAIS", img: "https://i.ibb.co/cQwqfFC/ees.jpg", link: "https://d2xqbi89ghm9hh.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-79fx3huimw4xc-ssai-prd/fast-channel-el-pais.m3u8" },
+  { name: "TRECE", img: "https://i.ibb.co/GsLm5g5/trece.png", link: "https://play.cdn.enetres.net/091DB7AFBD77442B9BA2F141DCC182F5021/live.smil/playlist.m3u8" },
+  { name: "TRECE", img: "https://i.ibb.co/GsLm5g5/trece.png", link: "https://live-edge-ff-1.cdn.enetres.net/091DB7AFBD77442B9BA2F141DCC182F5021/liveld/index.m3u8" },
+  { name: "PEQUE TV", img: "https://i.ibb.co/GJ3Qw6b/peque.jpg", link: "https://canadaremar2.todostreaming.es/live/peque-pequetv.m3u8" },
+  { name: "TRACE LATINA", img: "https://i.ibb.co/vvhRkHZ/tracelatina.png", link: "https://d3b13j525hja2q.cloudfront.net/23073/Latina/encrypted/4/prog_index.m3u8" },
+  { name: "EL TORO TV", img: "https://i.ibb.co/NLVj121/eltoro.png", link: "https://streaming-1.eltorotv.com/lb0/eltorotv-streaming-web/index.m3u8" },
+  { name: "SUR 1 ANDALUCÍA", img: "https://i.ibb.co/Qb7LPVN/andartv.png", link: "https://live-24-canalsur.interactvty.pro/9bb0f4edcb8946e79f5017ddca6c02b0/26af5488cda642ed2eddd27a6328c93b9c03e9181b9d0a825147a7d978e69202.m3u8" },
+  { name: "SUR 1 ANDALUCÍA", img: "https://i.ibb.co/Qb7LPVN/andartv.png", link: "https://live-24-canalsur.interactvty.pro/9bb0f4edcb8946e79f5017ddca6c02b0/26af5488cda642ed2eddd27a6328c93b9c03e9181b9d0a825147a7d978e69202.m3u8" },
+  { name: "SUR 1 ANDALUCÍA", img: "https://i.ibb.co/Qb7LPVN/andartv.png", link: "https://dfk2a268yviz9.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-ddiii1m6jt6of/CanalSurAndaluciaES.m3u8" },
+  { name: "SUR 2 ANDALUCÍA", img: "https://i.ibb.co/Pt5ThHQ/andatv.png", link: "https://cdnlive.codev8.net/rtvalive/channel22.smil/playlist.m3u8" },
+  { name: "SUR NOTICIAS ANDALUCÍA", img: "https://i.ibb.co/gWcDxx9/csnan.png", link: "https://cdnlive.codev8.net/rtvalive/smil:channel42.smil/playlist.m3u8" },
+  { name: "COCINA ANDALUCÍA", img: "https://i.ibb.co/LrnwFnz/andacocina.png", link: "https://cloud.fastchannel.es/mic/manifiest/hls/acocina/acocina.m3u8" },
+  { name: "TURISMO ANDALUCÍA", img: "https://i.ibb.co/hHKKnt3/andaturismo.png", link: "https://cloud.fastchannel.es/mic/manifiest/hls/aturismo/aturismo.m3u8" },
+  { name: "LA 1 CATALUNYA", img: "https://i.ibb.co/VM5vGBV/la1.jpg", link: "https://rtvelivestream.rtve.es/rtvesec/cat/la1_cat_main_dvr.m3u8" },
+  { name: "24 H CATALUNYA", img: "https://i.ibb.co/fqg1vfr/24h.png", link: "https://rtvelivestream.rtve.es/rtvesec/cat/24h_cat_main_dvr.m3u8" },
+  { name: "24 H CATALUNYA", img: "https://i.ibb.co/fqg1vfr/24h.png", link: "https://ztnr.rtve.es/ztnr/4952053.m3u8" },
+  { name: "TV3 CATALUNYA FAST 2", img: "https://i.ibb.co/xmGNS4w/tvcata.jpg", link: "https://fast-tailor.3catdirectes.cat/v1/channel/ccma-channel2/hls.m3u8" },
+  { name: "CATALUNYA BON DIA TV", img: "https://i.ibb.co/2F2XDFd/bondia.png", link: "https://directes-tv-int.3catdirectes.cat/live-content/bondia-hls/master.m3u8" },
+  { name: "CATALUNYA BON DIA TV", img: "https://i.ibb.co/2F2XDFd/bondia.png", link: "https://directes-tv-int.3catdirectes.cat/live-origin/bondia-hls/master.m3u8" },
+  { name: "CATALUNYA 4 TV", img: "https://i.ibb.co/tM7BJP1/cata4.jpg", link: "https://limited35.todostreaming.es/live/mitjans-livestream.m3u8" },
+  { name: "TELE MADRID", img: "https://i.ibb.co/QnMxFJD/madr.jpg", link: "https://telemadrid-23-secure2.akamaized.net/master.m3u8" },
+  { name: "TVG GALICIA EU", img: "https://i.ibb.co/LtG0fMD/galic.jpg", link: "https://crtvg-europa.flumotion.cloud/playlist.m3u8" },
+  { name: "TVG GALICIA AM", img: "https://i.ibb.co/LtG0fMD/galic.jpg", link: "https://crtvg-america.flumotion.cloud/playlist.m3u8" },
+  { name: "EITB 1", img: "https://i.ibb.co/FhXvbPN/eitb.jpg", link: "https://multimedia.eitb.eus/live-content/etb1hd-hls/master.m3u8" },
+  { name: "EITB 2", img: "https://i.ibb.co/FhXvbPN/eitb.jpg", link: "https://multimedia.eitb.eus/live-content/etb2hd-hls/master.m3u8" },
+  { name: "EITB INT", img: "https://i.ibb.co/FhXvbPN/eitb.jpg", link: "https://multimedia.eitb.eus/live-content/eitbbasque-hls/master.m3u8" },
+  { name: "EITB DEPORTE", img: "https://i.ibb.co/56TvMjR/etbs.jpg", link: "https://multimedia.eitb.eus/live-content/oka3hd-hls/master.m3u8" },
+  { name: "ANDORRA DIFUSIÓ", img: "https://i.ibb.co/ySq76W3/rtva.png", link: "https://livesg1.rtva.hiway.media/aa2d69af-76a0-4077-a57e-0445c4061f86/manifest.m3u8" },
+  { name: "TV RIOJA", img: "https://i.ibb.co/2dHP72G/tvrioja.jpg", link: "https://5924d3ad0efcf.streamlock.net/riojatv/riojatvlive/playlist.m3u8" },
+  { name: "CGTN ESPAÑOL", img: "https://i.ibb.co/CH8JGfJ/cgtnes.png", link: "https://espanol-livews.cgtn.com/hls/LSveOGBaBw41Ea7ukkVAUdKQ220802LSTexu6xAuFH8VZNBLE1ZNEa220802cd/playlist.m3u8" },
+  { name: "AL AOULA LAÂYOUNE الأولى", img: "https://i.ibb.co/n0Pwp2S/alaoulainter.png", link: "https://cdn.live.easybroadcast.io/abr_corp/73_laayoune_pgagr52/corp/73_laayoune_pgagr52_480p/chunks_dvr.m3u8" },
+  { name: "AL AOULA LAÂYOUNE الأولى", img: "https://i.ibb.co/n0Pwp2S/alaoulainter.png", link: "https://cdn.live.easybroadcast.io/ts_corp/73_laayoune_pgagr52/playlist_dvr.m3u8" },
+  { name: "AL AOULA INT الأولى", img: "https://i.ibb.co/n0Pwp2S/alaoulainter.png", link: "https://cdn.live.easybroadcast.io/ts_corp/73_aloula_w1dqfwm/playlist_dvr.m3u8" },
+  { name: "AL AOULA INT الأولى", img: "https://i.ibb.co/n0Pwp2S/alaoulainter.png", link: "https://xddrts.alwaysdata.net/aloula.php?m3u8" },
+  { name: "2M MONDE الثانية", img: "https://i.ibb.co/dp5Z2dh/2m.png", link: "https://d2qh3gh0k5vp3v.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-n6pess5lwbghr/2M_ES.m3u8" },
+  { name: "ARRYADIA الرياضية", img: "https://i.ibb.co/Wk8BWg4/arryadia.png", link: "https://cdn.live.easybroadcast.io/ts_corp/73_arryadia_k2tgcj0/playlist_dvr.m3u8" },
+  { name: "ARRYADIA TNT الرياضية", img: "https://i.ibb.co/Wk8BWg4/arryadia.png", link: "https://cdn.live.easybroadcast.io/ts_corp/73_arryadia-tnt_zcmwjdc/playlist_dvr.m3u8" },
+  { name: "ATHAQAFIA الثقافية", img: "https://i.ibb.co/k8gk0Hb/arrabiaa.png", link: "https://cdn.live.easybroadcast.io/ts_corp/73_arrabia_hthcj4p/playlist_dvr.m3u8" },
+  { name: "ATHAQAFIA الثقافية", img: "https://i.ibb.co/k8gk0Hb/arrabiaa.png", link: "https://oppomu.serv00.net/arrabia.php?m3u8" },
+  { name: "AL MAGHRIBIA المغربية الإخبارية", img: "https://i.ibb.co/5kp5CmP/almaghribia.png", link: "https://cdn.live.easybroadcast.io/abr_corp/73_almaghribia_83tz85q/corp/73_almaghribia_83tz85q_480p/chunks_dvr.m3u8" },
+  { name: "AL MAGHRIBIA المغربية الإخبارية", img: "https://i.ibb.co/5kp5CmP/almaghribia.png", link: "https://cdn.live.easybroadcast.io/ts_corp/73_almaghribia_83tz85q/playlist_dvr.m3u8" },
+  { name: "ASSADISSA القرآن الكريم", img: "https://i.ibb.co/Gxn4XrB/assadissa.png", link: "https://cdn.live.easybroadcast.io/abr_corp/73_assadissa_7b7u5n1/corp/73_assadissa_7b7u5n1_480p/chunks_dvr.m3u8" },
+  { name: "ASSADISSA القرآن الكريم", img: "https://i.ibb.co/Gxn4XrB/assadissa.png", link: "https://cdn.live.easybroadcast.io/ts_corp/73_assadissa_7b7u5n1/playlist_dvr.m3u8" },
+  { name: "TAMAZIGHT الأمازيغية", img: "https://i.ibb.co/rmRc08Z/tamazight.png", link: "https://cdnet.alwaysdata.net/tamaz.php?m3u8" },
+  { name: "CHADA TV شدى", img: "https://i.ibb.co/pdd2VqB/chada.jpg", link: "https://edge14.vedge.infomaniak.com/livecast/chadatv/manifest.m3u8" },
+  { name: "JAWHARA TV", img: "https://i.ibb.co/cK7f5bsz/Jawhara.png", link: "https://streaming.toutech.net/live/jtv/index.m3u8" },
+  { name: "JAWHARA TV FM", img: "https://i.ibb.co/cK7f5bsz/Jawhara.png", link: "http://streaming.toutech.net:1935/live/mp4:jawharafm.sdp/playlist.m3u8" },
+  { name: "ATTASIA 9", img: "https://i.ibb.co/8DxdBPf/Attessia9.png", link: "https://cdn.bestream.io:19360/alqanat9/alqanat9.m3u8" },
+  { name: "TV1 ENTV", img: "https://i.ibb.co/xY39PSC/TV1-ENTV.png", link: "http://149.62.177.98:8000/play/a00i/index.m3u8" },
+  { name: "TV2 ALGERIE", img: "https://i.ibb.co/9tsD8WP/TV2Al.png", link: "http://149.62.177.98:8000/play/a01s/index.m3u8" },
+  { name: "TV2 ALGÉRIE", img: "https://i.ibb.co/9tsD8WP/TV2Al.png", link: "http://69.64.57.208/canalalgerie/playlist.m3u8" },
+  { name: "TV2 ALGÉRIE", img: "https://i.ibb.co/9tsD8WP/TV2Al.png", link: "http://162.212.179.33/dvrfl05/gin-canalalgerie/index.m3u8" },
+  { name: "TV3 ALGERIE", img: "https://i.ibb.co/qR3CZP8/tv3al.png", link: "http://149.62.177.98:8000/play/a01z/index.m3u8" },
+  { name: "EL HEDDAF TV", img: "https://i.ibb.co/y5rY7zJ/heddaf.png", link: "https://live.eighty-eight.tv:7770/elheddaf1/index.m3u8" },
+  { name: "CNA", img: "https://i.ibb.co/H4N2sNS/cna.png", link: "https://live.creacast.com/cna/smil:cna.smil/playlist.m3u8" },
+  { name: "CHADA TV شدى (backup)", img: "https://i.ibb.co/pdd2VqB/chada.jpg", link: "https://chadatv.vedge.infomaniak.com/livecast/chadatv/playlist.m3u8" },
+  { name: "CHADA TV شدى (backup)", img: "https://i.ibb.co/pdd2VqB/chada.jpg", link: "https://chadatv.vedge.infomaniak.com/livecast/chadatv/manifest.m3u8" },
+  { name: "RESHET 13 רשת", img: "https://i.ibb.co/MnSQCcr/R1322.jpg", link: "https://d2xg1g9o5vns8m.cloudfront.net/out/v1/66d4ac8748ce4a9298b4e40e48d1ae2f/index.m3u8" },
+  { name: "RESHET 13 sub-cc רשת", img: "https://i.ibb.co/MnSQCcr/R1322.jpg", link: "https://d198ztbnlup2iq.cloudfront.net/out/v1/2d9050c90fb94df8b78d1d98306a1a65/index.m3u8" },
+  { name: "NOW 14 עכשיו", img: "https://i.ibb.co/4g6BSYf/now14smgri.png", link: "https://ch14channel14content-ioriver-cdn.encoders.immergo.tv/master.m3u8" },
+  { name: "HAKNESSET 99 כנסת", img: "https://i.ibb.co/zP5vjLD/knesset.png", link: "https://kneset.gostreaming.tv/p2-kneset/_definst_/myStream/playlist.m3u8" },
+  { name: "HAKNESSET 99 sub-cc כנסת", img: "https://i.ibb.co/zP5vjLD/knesset.png", link: "https://kneset.gostreaming.tv/p2-Accessibility/_definst_/myStream/index.m3u8" },
+  { name: "KESHET 12 HATUNA WEDDING", img: "https://i.ibb.co/PvXmDXdW/hatunami.jpg", link: "https://mako-streaming.akamaized.net/free/hls/live/2111419/hatuna/video_5761024_p_0.m3u8" },
+  { name: "KESHET 12 NINJA ISR", img: "https://i.ibb.co/qF5Zvwgt/ninja.jpg", link: "https://mako-streaming.akamaized.net/free/hls/live/2111419/ninja/video_5761024_p_0.m3u8" },
+  { name: "PANET 30 HALA هلا", img: "https://i.ibb.co/MG43H4H/hala.png", link: "https://stream.panet.com/edge/halaTV/playlist.m3u8" },
+  { name: "KABBALAH 96", img: "https://i.ibb.co/93bQz4t/kabalah.png", link: "http://edge3.uk.kab.tv/live/tv66-heb-high/playlist.m3u8" },
+  { name: "KABBALAH 96", img: "https://i.ibb.co/93bQz4t/kabalah.png", link: "https://edge2.il.kab.tv/live/tv66-heb-high/playlist.m3u8" },
+  { name: "SHELANU GOD-IL", img: "https://i.ibb.co/tMm7vdM/shelanug.jpg", link: "https://1247634592.rsc.cdn77.org/1247634592/playlist.m3u8" },
+  { name: "RESHET 13 רשת (backup)", img: "https://i.ibb.co/MnSQCcr/R1322.jpg", link: "https://reshet.g-mana.live/media/cdefce3a-14ec-46cc-a147-1275c4a8b9ed/mainManifest.m3u8" },
+  { name: "RESHET 13 sub-cc רשת (backup)", img: "https://i.ibb.co/MnSQCcr/R1322.jpg", link: "https://reshet.g-mana.live/media/4607e158-e4d4-4e18-9160-3dc3ea9bc677/mainManifest.m3u8" },
+  { name: "MAKO 24 ערוץ (backup)", img: "https://i.ibb.co/7nYM8MK/arutz24tvtrp.png", link: "https://mako-streaming.akamaized.net/direct/hls/live/2035340/ch24live/video_7201280_p_1.m3u8" },
+  { name: "RESHET 13 רשת (backlink)", img: "https://i.ibb.co/MnSQCcr/R1322.jpg", link: "https://cdnapisec.kaltura.com/p/2748741/sp/2748741/playManifest/entryId/1_l38msgjy/deliveryProfileId/672/protocol/https/format/applehttp/a.m3u8" },
+  { name: "FUTURE LBN", img: "https://i.ibb.co/ZB8x8TP/futlbn.png", link: "https://live.kwikmotion.com/futurelive/ftv.smil/playlist.m3u8" },
+  { name: "TL LIBAN", img: "https://i.ibb.co/80JQ9zg/teleliban.webp", link: "https://cdn.catiacast.video/abr/ed8f807e2548db4507d2a6f4ba0c4a06/playlist.m3u8" },
+  { name: "OTV LBN", img: "https://i.ibb.co/Svnqq8G/otv.jpg", link: "http://185.9.2.18/chid_312/index.m3u8" },
+  { name: "OTV LBN", img: "https://i.ibb.co/Svnqq8G/otv.jpg", link: "https://fl1002.bozztv.com/ga-otvlebanon/index.m3u8" },
+  { name: "AL JADEED", img: "https://i.ibb.co/hM98B0V/jadeed.png", link: "http://185.9.2.18/chid_391/mono.m3u8" },
+  { name: "AL MAYADEEN", img: "https://i.ibb.co/1KcjbKf/almayadeen.png", link: "https://mdnlv.cdn.octivid.com/almdn/smil:mpegts.stream.smil/playlist.m3u8" },
+  { name: "AL WIFAK", img: "https://i.ibb.co/Xxh3RzDV/alwifak.jpg", link: "http://alwifaklive.info:1935/live/myStream/playlist.m3u8" },
+  { name: "NABAA TV", img: "https://i.ibb.co/JrFjqrc/nabaa.png", link: "https://655ca86f46b1f.streamlock.net/live/Nabaa/playlist.m3u8" },
+  { name: "NABAA TV", img: "https://i.ibb.co/JrFjqrc/nabaa.png", link: "http://31.14.40.237:1935/live/Nabaa/playlist.m3u8" },
+  { name: "TAHA TV", img: "https://i.ibb.co/h872gKg/taha.png", link: "https://media1.livaat.com/static/TAHA_TV/playlist.m3u8" },
+  { name: "ONE TV LBN", img: "https://i.ibb.co/vJj1gdb/onetvlb.jpg", link: "https://hms.pfs.gdn/hms/v1/stream/mtv.m3u8?token=4c8RZ" },
+  { name: "AL ALARABY 2", img: "https://i.ibb.co/s107QNv/araby2.png", link: "https://alaraby.cdn.octivid.com/alaraby2n/smil:alaraby2n.stream.smil/chunklist.m3u8" },
+  { name: "AL ALARABY 2", img: "https://i.ibb.co/s107QNv/araby2.png", link: "https://alarabyta.cdn.octivid.com/alaraby2n/smil:alaraby2n.stream.smil/chunklist.m3u8" },
+  { name: "LIBYA WATANYA", img: "https://i.ibb.co/mCBL5fNk/lybiawat.jpg", link: "https://cdn-globecast.akamaized.net/live/eds/libya_al_watanya/hls_roku/index.m3u8" },
+  { name: "AL MASAR", img: "https://i.ibb.co/3mfSV6R6/almasar.jpg", link: "https://starmenajo.com/hls/almasar/index.m3u8" },
+  { name: "ASSIRAT", img: "https://i.ibb.co/Lh6wp1q4/assirat.png", link: "https://softverse.b-cdn.net/Assirat/assiratobs/playlist.m3u8" },
+  { name: "QATAR TV", img: "https://i.ibb.co/x8ftqHr/qattv.png", link: "https://streamer1.qna.org.qa/148133273_live/148133273_63.sdp/playlist.m3u8" },
+  { name: "QATAR TV 2", img: "https://i.ibb.co/y4qNK42/qattv2.png", link: "https://streamer1.qna.org.qa/148133344_live/148133344_63.sdp/playlist.m3u8" },
+  { name: "AL RAYYAN", img: "https://i.ibb.co/dp728rg/rayan.png", link: "https://alrayyancdn.vidgyor.com/pub-nooldraybinbdh/liveabr/playlist_dvr.m3u8" },
+  { name: "AL KHALIJ TV", img: "https://i.ibb.co/zGHHGbj/alkhalij.jpg", link: "https://mn-nl.mncdn.com/khalij/khalij/playlist.m3u8" },
+  { name: "PANET 30 HALA", img: "https://i.ibb.co/MG43H4H/hala.png", link: "https://gstream4.panet.co.il/edge/halaTV/playlist.m3u8" },
+  { name: "AL MASRIYA TV", img: "https://i.ibb.co/SYvz5YT/masriya.jpg", link: "https://raw.githubusercontent.com/fraudiay79/strm/refs/heads/main/platforms/links/masriya.m3u8" },
+  { name: "NILE TV", img: "https://i.ibb.co/qMm9t2ZK/niletv.png", link: "https://raw.githubusercontent.com/fraudiay79/strm/refs/heads/main/platforms/links/niletv.m3u8" },
+  { name: "ATFAL", img: "https://i.ibb.co/5TZPHf6/atfal.jpg", link: "https://5d658d7e9f562.streamlock.net/atfal1.com/atfal2/playlist.m3u8" },
+  { name: "DABANGA", img: "https://i.ibb.co/svNjxMqW/dabanga.png", link: "https://hls.dabangasudan.org/hls/stream.m3u8" },
+  { name: "MEKAMELEEN", img: "https://i.ibb.co/0mtj39x/Mekameleen.png", link: "http://mn-nl.mncdn.com/mekameleen/smil:mekameleentv.smil/playlist.m3u8" },
+  { name: "AL IRAQIA", img: "https://i.ibb.co/mVPZh6Gz/Aliraqia.jpg", link: "https://cdn.catiacast.video/abr/8d2ffb0aba244e8d9101a9488a7daa05/playlist.m3u8" },
+  { name: "AL SAHAT", img: "https://i.ibb.co/sdcTsN33/alsahat.png", link: "https://assahat.b-cdn.net/Assahat/assahatobs/index.m3u8" },
+  { name: "AL HQEQA", img: "https://i.ibb.co/1tXkQTsV/hqeqa.jpg", link: "https://ghaasiflu.online/alhqeqa/index.m3u8" },
+  { name: "AL SERAJ", img: "https://i.ibb.co/qYF39XdD/seraj.webp", link: "https://64c53df624b1b.servers.dvcloud.tv/hls/feedspare/6udfi7v8a3eof6nlps6e9ovfrs65c7l7.m3u8" },
+  { name: "ERTU 1", img: "https://i.ibb.co/FLLRFNxd/ertu1.jpg", link: "https://raw.githubusercontent.com/fraudiay79/strm/refs/heads/main/platforms/links/ertu1.m3u8" },
+  { name: "YEMEN MAHRIAH", img: "https://i.ibb.co/VCfg2xY/almahriah.png", link: "https://starmenajo.com/hls/almahriah/index.m3u8" },
+  { name: "AL HAYAH TV", img: "https://i.ibb.co/rG6KzwsJ/hayah.jpg", link: "https://fl1002.bozztv.com/ga-alhayah/index.m3u8" },
+  { name: "AL HAQIQA", img: "https://i.ibb.co/PYwbLwJ/haqiqat.jpg", link: "https://jmc-live.ercdn.net/alhaqiqa/alhaqiqa.m3u8" },
+  { name: "PAYAM TV", img: "https://i.ibb.co/nPBCcKq/payam.jpg", link: "https://media2.streambrothers.com:1936/8218/8218/playlist.m3u8" },
+  { name: "AL MASHAD", img: "https://i.ibb.co/QjDPJSQ0/Al-Mashhad.jpg", link: "https://bcovlive-a.akamaihd.net/rbcb04b715757430f92099ecc84ca472f/ap-south-1/6313884884001/playlist.m3u8" },
+  { name: "AL DAFRAH", img: "https://i.ibb.co/FYdQXH1/aldafrah.png", link: "https://rtmp-live-ingest-eu-west-3-universe-dacast-com.akamaized.net/transmuxv1/streams/dbb8ac05-a020-784c-3a95-6ed027941532.m3u8" },
+  { name: "RAJEEN", img: "https://i.ibb.co/gJcnzXw/rajeen.png", link: "https://mn-nl.mncdn.com/palabroad/live/playlist.m3u8" },
+  { name: "WATAR PS", img: "https://i.ibb.co/nkfS0P4/palsat.jpg", link: "http://htvint.mada.ps:8889/orient/index.m3u8" },
+  { name: "WATAR PS", img: "https://i.ibb.co/nkfS0P4/palsat.jpg", link: "https://htvint.mada.ps/orient/index.m3u8" },
+  { name: "PALESTINIAN TV", img: "https://i.ibb.co/RNHM3Xx/falastini.png", link: "https://rp.tactivemedia.com/palestiniantv_source/live/playlist.m3u8" },
+  { name: "YEMEN SHABAB", img: "https://i.ibb.co/230j3Kr/yemenshabab.png", link: "https://starmenajo.com/hls/yemenshabab/index.m3u8" },
+  { name: "UTV IRAQI", img: "https://i.ibb.co/wK6B1QV/utv.png", link: "https://mn-nl.mncdn.com/utviraqi2/64c80359/chunklist.m3u8" },
+  { name: "AL RASHEED", img: "https://i.ibb.co/8jK0ZR5/alrasheed.png", link: "https://media1.livaat.com/static/AL-RASHEED-HD/playlist.m3u8" },
+  { name: "WATAN EGYPT", img: "https://i.ibb.co/zSv52T7/watanegypt.png", link: "https://rp.tactivemedia.com/watantv_source/live/playlist.m3u8" },
+  { name: "ISHTAR ASSYRIAN GLOBAL", img: "https://i.ibb.co/ZNQPS3x/Ishtar.jpg", link: "https://58cc65c534c67.streamlock.net/agnsat.com/agn2/playlist.m3u8" },
+  { name: "DUBAI TV", img: "https://i.ibb.co/BCK1L31/DubaiTV.png", link: "https://dmieigthvllta.cdn.mgmlcdn.com/dubaitvht/smil:dubaitv.stream.smil/index.m3u8" },
+  { name: "DUBAI TV", img: "https://i.ibb.co/BCK1L31/DubaiTV.png", link: "https://dmieigthvllta.cdn.mangomolo.com/dubaitvht/smil:dubaitv.stream.smil/chunklist.m3u8" },
+  { name: "DUBAI ONE", img: "https://i.ibb.co/ngKnxmq/dubaione.png", link: "https://dminnvllta.cdn.mgmlcdn.com/dubaione/smil:dubaione.stream.smil/index.m3u8" },
+  { name: "DUBAI ONE", img: "https://i.ibb.co/ngKnxmq/dubaione.png", link: "https://dminnvllta.cdn.mgmlcdn.com/dubaione/smil:dubaione.stream.smil/playlist.m3u?m3u8" },
+  { name: "DUBAI NOOR", img: "https://i.ibb.co/jMsSmvg/dubainoor.png", link: "https://dmiffthftl.cdn.mangomolo.com/noordubaitv/smil:noordubaitv.smil/index.m3u8" },
+  { name: "DUBAI SAMA", img: "https://i.ibb.co/g4LTFCS/dubaisama.png", link: "https://dmieigthvllta.cdn.mgmlcdn.com/samadubaiht/smil:samadubai.stream.smil/index.m3u8" },
+  { name: "DUBAI ZAMAN", img: "https://i.ibb.co/xDs4dGV/dubaizaman.png", link: "https://dmiffthftl.cdn.mangomolo.com/dubaizaman/smil:dubaizaman.stream.smil/index.m3u8" },
+  { name: "DUBAI RACING 1", img: "https://i.ibb.co/MD9vwnv/dubairacing.png", link: "https://dmisdracta.cdn.mgmlcdn.com/events/smil:events.stream.smil/index.m3u8" },
+  { name: "DUBAI RACING 2", img: "https://i.ibb.co/MD9vwnv/dubairacing.png", link: "https://dmithrvllta.cdn.mgmlcdn.com/dubairacing/smil:dubairacing.smil/index.m3u8" },
+  { name: "DUBAI RACING 3", img: "https://i.ibb.co/MD9vwnv/dubairacing.png", link: "https://dmithrvllta.cdn.mgmlcdn.com/dubaimubasher/smil:dubaimubasher.smil/index.m3u8" },
+  { name: "AL KASS 3", img: "https://i.ibb.co/3h4XCtZ/kasqatar.png", link: "https://streamer2.qna.org.qa/148161470_live/148161470_296.sdp/playlist.m3u8" }
+];
 
-if(Hls.isSupported()) {
-  var hls = new Hls();
-  hls.loadSource(streamURL);
-  hls.attachMedia(video);
-} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-  video.src = streamURL;
-}
-</script>
+    // 🔄 دالة عرض القنوات
+    function render(list, gridId) {
+      const grid = document.getElementById(gridId);
+      grid.innerHTML = '';
+      list.forEach(ch => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<img class="logo" alt="${ch.name}" src="${ch.img}"><div class="name">${ch.name}</div>`;
+        card.addEventListener('click', () => { window.open(ch.link, "_blank"); });
+        grid.appendChild(card);
+      });
+    }
+
+    // 🚀 نرندر الباقات
+    render(sports, "grid-sports");
+    render(movies, "grid-movies");
+    render(music, "grid-music");
+  </script>
+
 </body>
 </html>
