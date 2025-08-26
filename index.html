@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>قنواتي</title>
   <style>
-    body { font-family:Arial, sans-serif; text-align:center; transition:background 0.8s, color 0.8s; }
+    body { font-family:Arial, sans-serif; text-align:center; transition:background 0.8s, color 0.8s; margin:0; overflow-x:hidden; }
 
     h2 { margin:20px 0; color:#0f0; }
     .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:15px; padding:20px; }
@@ -32,7 +32,7 @@
     /* 🔍 ستايل البار المزخرف */
     .search-box {
       margin: 20px auto;
-      width: 80%;
+      width: 90%;
       max-width: 400px;
       position: relative;
     }
@@ -52,7 +52,22 @@
       top: 50%;
       transform: translateY(-50%);
       color: #0f0;
-      font-size: 18px;
+      font-size: 20px;
+      pointer-events: none;
+      text-shadow: 0 0 5px #0f0, 0 0 10px #0f0, 0 0 20px #0f0;
+      animation: glow 1.5s infinite alternate, rotate 6s linear infinite;
+    }
+
+    /* ✨ لمعة */
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #0f0, 0 0 10px #0f0; }
+      to   { text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 30px #0f0; }
+    }
+
+    /* 🔄 دوران بطيء */
+    @keyframes rotate {
+      from { transform: translateY(-50%) rotate(0deg); }
+      to   { transform: translateY(-50%) rotate(360deg); }
     }
 
     /* زر تبديل الوضع */
@@ -91,7 +106,7 @@
 
   <!-- 🔍 بار البحث -->
   <div class="search-box">
-    <input type="text" id="search" placeholder="🔍 ابحث عن قناتك المفضلة...">
+    <input type="text" id="search" placeholder="ابحث عن قناتك المفضلة...">
     <i>★</i>
   </div>
 
@@ -114,7 +129,7 @@
     // 🇫🇷 قنوات الباقة الفرنسية
     const french = [
 { name: "LCP-AN", img: "https://i.ibb.co/rkv3Nvq/lcpan.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/refs/heads/master/ressources/dmotion/py/lcpan/lcp1.m3u8", country: "France" },
-  { name: "FRANCE INFO:", img: "https://i.ibb.co/XkLHrbC/frinfo2bl.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/master/ressources/ftv/py/frin.m3u8", country: "France" },
+  { name: "FRANCE INFO", img: "https://i.ibb.co/XkLHrbC/frinfo2bl.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/master/ressources/ftv/py/frin.m3u8", country: "France" },
   { name: "FRANCE 24 FR", img: "https://i.ibb.co/hKP8X8B/f24.png", link: "https://live.france24.com/hls/live/2037179/F24_FR_HI_HLS/master_5000.m3u8", country: "France" },
   { name: "LCI", img: "https://i.ibb.co/Zfcrrr1/lci.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/master/ressources/btv/py/lci1.m3u8", country: "France" },
   { name: "EURONEWS FR", img: "https://i.ibb.co/VxLFYSj/euronews.png", link: "https://euronews-live-fre-fr.fast.rakuten.tv/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6564/bitok/e/26032/euronews-fr.m3u8", country: "France" },
@@ -124,21 +139,15 @@
   { name: "i24 NEWS FR", img: "https://i.ibb.co/j68q1Bp/i24.png", link: "https://bcovlive-a.akamaihd.net/41814196d97e433fb401c5e632d985e9/eu-central-1/5377161796001/playlist.m3u8", country: "France" },
   { name: "AFRICA 24 FR", img: "https://i.ibb.co/pdnMrZn/a24.png", link: "https://africa24.vedge.infomaniak.com/livecast/ik:africa24/manifest.m3u8", country: "France" },
   { name: "CGTN FRANÇAIS", img: "https://i.ibb.co/ZgqnqnJ/cgtnfr.png", link: "https://francais-livews.cgtn.com/hls/LSvev95OuFZtKLc6CeKEFYXj220802LSTeV6PO0Ut9r71Uq3k5goCA220802cd/playlist.m3u8", country: "France" },
-  { name: "RT FRANÇAIS [censure-blocked]", img: "https://i.ibb.co/D7w9h7Q/rt.png", link: "http://69.64.57.208:8080/rtfrance/playlist.m3u8", country: "France" },
-  { name: "AFRICANEWS FR", img: "https://i.ibb.co/XSYtYHZ/africanews.png", link: "https://cdn-euronews.akamaized.net/live/eds/africanews-fr/25050/index.m3u8", country: "France" },
-  { name: "RT FRANÇAIS [censure-blocked]", img: "https://i.ibb.co/D7w9h7Q/rt.png", link: "https://librarian.pussthecat.org/live/content/a6a125c99ba2a6c068a8b502fb08dda603f6f03a/live.m3u8", country: "France" },
-  { name: "RT FRANÇAIS [censure-blocked]", img: "https://i.ibb.co/D7w9h7Q/rt.png", link: "https://rt-fra.rttv.com/live/rtfrance/playlist.m3u8", country: "France" },
-  { name: "RT FRANÇAIS [censure-blocked]", img: "https://i.ibb.co/D7w9h7Q/rt.png", link: "https://rt-fra.rttv.com/dvr/rtfrance/playlist.m3u8", country: "France" },
+  { name: "RT FRANÇAIS", img: "https://i.ibb.co/D7w9h7Q/rt.png", link: "http://69.64.57.208:8080/rtfrance/playlist.m3u8", country: "France" },
+  { name: "AFRICA NEWS FR", img: "https://i.ibb.co/XSYtYHZ/africanews.png", link: "https://cdn-euronews.akamaized.net/live/eds/africanews-fr/25050/index.m3u8", country: "France" },
   { name: "BLOOMBERG PLUS FR", img: "https://i.ibb.co/Nn5x9Hq/bloom.jpg", link: "https://cd0ccbe625b34fcb91d4c0060dab13d7.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/Samsung-fr_Bloomberg-1/playlist.m3u8", country: "France" },
-  { name: "PRESS IR FRENCH [temp barker]", img: "https://i.ibb.co/rwbrckj/pressir.png", link: "https://live4.presstv.ir/live/smil:presstvfr.smil/playlist.m3u8", country: "France" },
-  { name: "FRANCE INFO: (backup-off)", img: "https://i.ibb.co/XkLHrbC/frinfo2bl.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/master/ressources/dmotion/py/frinfo/frinfo.m3u8", country: "France" },
-  { name: "FRANCE INFO: (backup)", img: "https://i.ibb.co/XkLHrbC/frinfo2bl.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/master/ressources/ftv/py2/frinnv.m3u8", country: "France" },
-  { name: "BFM 2 (backup)", img: "https://i.ibb.co/2MhqYgg/bfm2.png", link: "https://d1ib1gsg71oarf.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-scp7wda722jph/BFM2_FR.m3u8", country: "France" },
-  { name: "FRANCE 24 FR (backup)", img: "https://i.ibb.co/hKP8X8B/f24.png", link: "https://live.france24.com/hls/live/2037179/F24_FR_HI_HLS/master_2300.m3u8", country: "France" },
-  { name: "EURONEWS FR (backup)", img: "https://i.ibb.co/VxLFYSj/euronews.png", link: "http://stitcher-ipv4.pluto.tv/v1/stitch/embed/hls/channel/60d35bcaf1ff4a00078af0a6livestitch/master.m3u8?deviceDNT=%7BTARGETOPT%7D&deviceModel=samsung&deviceVersion=unknown&appVersion=unknown&deviceType=samsung-tvplus&deviceMake=samsung", country: "France" },
-  { name: "EURONEWS FR (backup)", img: "https://i.ibb.co/VxLFYSj/euronews.png", link: "https://cdn-euronews.akamaized.net/live/eds/euronews-fr/25081/euronews-fr.m3u8", country: "France" },
-  { name: "FRANCE 24 FR (backup)", img: "https://i.ibb.co/hKP8X8B/f24.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/refs/heads/master/ressources/wld/f24fr.m3u8", country: "France" },
-  { name: "FRANCE INFO: (backup)", img: "https://i.ibb.co/XkLHrbC/frinfo2bl.png", link: "https://livestream.zazerconer.workers.dev/channel/UCO6K_kkdP-lnSCiO3tPx7WA/live.m3u8", country: "France" },
+  { name: "PRESS IR FRENCH", img: "https://i.ibb.co/rwbrckj/pressir.png", link: "https://live4.presstv.ir/live/smil:presstvfr.smil/playlist.m3u8", country: "France" },
+  { name: "FRANCE INFO", img: "https://i.ibb.co/XkLHrbC/frinfo2bl.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/master/ressources/ftv/py2/frinnv.m3u8", country: "France" },
+  { name: "BFM 2", img: "https://i.ibb.co/2MhqYgg/bfm2.png", link: "https://d1ib1gsg71oarf.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-scp7wda722jph/BFM2_FR.m3u8", country: "France" },
+  { name: "FRANCE 24 FR", img: "https://i.ibb.co/hKP8X8B/f24.png", link: "https://live.france24.com/hls/live/2037179/F24_FR_HI_HLS/master_2300.m3u8", country: "France" },
+  { name: "EURONEWS FR", img: "https://i.ibb.co/VxLFYSj/euronews.png", link: "http://stitcher-ipv4.pluto.tv/v1/stitch/embed/hls/channel/60d35bcaf1ff4a00078af0a6livestitch/master.m3u8?deviceDNT=%7BTARGETOPT%7D&deviceModel=samsung&deviceVersion=unknown&appVersion=unknown&deviceType=samsung-tvplus&deviceMake=samsung", country: "France" },
+  { name: "FRANCE 24 FR", img: "https://i.ibb.co/hKP8X8B/f24.png", link: "https://raw.githubusercontent.com/ipstreet312/freeiptv/refs/heads/master/ressources/wld/f24fr.m3u8", country: "France" },
   { name: "FRANCE 24 FR (backup)", img: "https://i.ibb.co/hKP8X8B/f24.png", link: "https://arkina1234.github.io/ext/hls/france24-fr.m3u8", country: "France" },
   { name: "TV5MONDE INFO (backup)", img: "https://i.ibb.co/drk4BWw/tv5inf.png", link: "https://d161b1o6wfc5a3.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-3u7sgewc3l8ri/tvfm.m3u8", country: "France" },
   { name: "LCI (backup)", img: "https://i.ibb.co/Zfcrrr1/lci.png", link: "https://raw.githubusercontent.com/schumijo/iptv/main/playlists/mytf1/lci.m3u8", country: "France" },
